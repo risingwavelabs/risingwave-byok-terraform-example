@@ -1,0 +1,41 @@
+# Example tfvars file for BYOK K8s Add-ons
+#
+# `region` and `eks_cluster_name` are passed via `-var` (see README.md).
+# All other base_env values are read via terraform_remote_state.
+# This file is for user-configurable overrides only.
+#
+# To use: copy to terraform.tfvars and uncomment desired settings.
+
+# Optional: Override chart versions (defaults align with production)
+# cert_manager_version      = "v1.19.2"
+# aws_lb_controller_version = "1.17.0"
+# karpenter_version         = "1.8.3"
+
+# Optional: Karpenter NodePool scheduling configuration
+# When taints/labels are set here, the `byok_config_yaml` output automatically
+# includes the matching scheduling section (tolerations/nodeAffinity) so
+# RisingWave-managed workloads schedule onto the correct nodes.
+#
+# system_nodepool = {
+#   instance_types = ["m7g.large", "m7g.xlarge"]
+#   labels         = { "risingwave.com/workload" = "system" }
+#   taints = [
+#     {
+#       key    = "risingwave.com/workload"
+#       value  = "system"
+#       effect = "NoSchedule"
+#     },
+#   ]
+# }
+#
+# rw_nodepool = {
+#   instance_types = ["m7g.xlarge", "m7g.2xlarge"]
+#   labels         = { "risingwave.com/workload" = "risingwave" }
+#   taints = [
+#     {
+#       key    = "risingwave.com/workload"
+#       value  = "risingwave"
+#       effect = "NoSchedule"
+#     },
+#   ]
+# }

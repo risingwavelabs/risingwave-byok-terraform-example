@@ -1,0 +1,22 @@
+# Terraform working files
+**/.terraform/
+**/.terraform.lock.hcl
+
+# Local state — users should configure their own backend
+**/terraform.tfstate
+**/terraform.tfstate.*
+**/terraform.tfvars
+*.tfvars
+
+# But keep examples
+!*.tfvars.example
+!terraform.tfvars.example
+
+# Generated configs (output of `terraform output`)
+byok_config.yaml
+byok_tenant_config.yaml
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/

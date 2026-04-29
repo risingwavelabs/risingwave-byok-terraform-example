@@ -1,0 +1,31 @@
+# Example tfvars file for BYOK base environment
+#
+# Copy this to terraform.tfvars and customize:
+#   cp terraform.tfvars.example terraform.tfvars
+
+# Required: Your unique prefix (1-12 lowercase alphanumeric chars)
+# This ensures multiple users can run simultaneously without conflicts
+user_prefix = "junfeng"
+
+# Optional: AWS region (default: us-east-1)
+# region = "us-east-1"
+
+# Optional: VPC CIDR (default: 10.0.0.0/16)
+# vpc_cidr = "10.0.0.0/16"
+
+# Optional: AWS Availability Zone IDs (not names) for VPC subnets and NLBs.
+# Default covers the AZs the RWC test-useast1 control plane currently uses,
+# Defaults to the first 3 AZs in the region. Override to use specific AZs.
+# availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
+
+# Optional: Kubernetes version (default: 1.33)
+# kubernetes_version = "1.33"
+
+# Optional: RisingWave control plane AWS account ID (for VPC endpoint service)
+# Default is the RisingWave Cloud production account.
+# control_plane_aws_account_id = "600598779918"
+
+# Optional: Additional tags
+# tags = {
+#   Team = "platform"
+# }
