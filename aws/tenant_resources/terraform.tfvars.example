@@ -1,0 +1,22 @@
+# Example tfvars for BYOK tenant resources
+#
+# Copy to terraform.tfvars and fill in values from `rwc cluster describe`:
+#   cp terraform.tfvars.example terraform.tfvars
+
+# Required: from `rwc cluster describe --name <tenant> -o json | jq -r '.resourceNamespace'`
+tenant_namespace = "rw-xxxxxxxx"
+
+# Required: from `rwc cluster describe --name <tenant> -o json | jq -r '.serviceAccountName'`
+tenant_service_account = "risingwave"
+
+# Required: RDS master password (use a strong password)
+rds_password = "change-me-to-a-strong-password"
+
+# Optional: RDS instance class (default: db.t4g.micro)
+# rds_instance_class = "db.t4g.micro"
+
+# Optional: Database name (default: risingwave)
+# rds_db_name = "risingwave"
+
+# Optional: Database username (default: risingwave)
+# rds_username = "risingwave"
