@@ -139,10 +139,12 @@ module "eks" {
 
 # EBS CSI Driver IRSA
 module "ebs_csi_irsa_role" {
-  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "5.48.0"
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
+  version = "6.4.0"
 
-  role_name             = "${local.name_prefix}-ebs-csi-irsa"
+  name                  = "${local.name_prefix}-ebs-csi-irsa"
+  policy_name           = "${local.name_prefix}-ebs-csi-irsa"
+  use_name_prefix       = false
   attach_ebs_csi_policy = true
 
   oidc_providers = {
@@ -157,10 +159,12 @@ module "ebs_csi_irsa_role" {
 
 # VPC CNI IRSA
 module "vpc_cni_irsa_role" {
-  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "5.48.0"
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
+  version = "6.4.0"
 
-  role_name             = "${local.name_prefix}-vpc-cni-irsa"
+  name                  = "${local.name_prefix}-vpc-cni-irsa"
+  policy_name           = "${local.name_prefix}-vpc-cni-irsa"
+  use_name_prefix       = false
   attach_vpc_cni_policy = true
   vpc_cni_enable_ipv4   = true
 

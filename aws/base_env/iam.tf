@@ -125,10 +125,12 @@ resource "aws_iam_role_policy" "loki_s3" {
 # Required for NLB/ALB provisioning in BYOK
 # ------------------------------------------------------------------------------
 module "aws_lb_controller_irsa_role" {
-  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "5.48.0"
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
+  version = "6.4.0"
 
-  role_name                              = "${local.name_prefix}-aws-lb-controller-irsa"
+  name                                   = "${local.name_prefix}-aws-lb-controller-irsa"
+  policy_name                            = "${local.name_prefix}-aws-lb-controller-irsa"
+  use_name_prefix                        = false
   attach_load_balancer_controller_policy = true
 
   oidc_providers = {
