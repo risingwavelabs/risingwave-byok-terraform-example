@@ -3,7 +3,7 @@ variable "user_prefix" {
   description = <<-HELP
   A unique prefix to identify resources created by this user.
   This ensures multiple users can run the module simultaneously without conflicts.
-  Example: "junfeng", "alice", "team1"
+  Example: "alice", "bob", "team1"
   HELP
 
   validation {
