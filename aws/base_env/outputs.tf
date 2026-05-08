@@ -123,7 +123,7 @@ output "cloudagent_role_arn" {
 
 output "aws_lb_controller_role_arn" {
   description = "IAM role ARN for AWS Load Balancer Controller"
-  value       = module.aws_lb_controller_irsa_role.iam_role_arn
+  value       = module.aws_lb_controller_irsa_role.arn
 }
 
 # NLBs and Target Groups
