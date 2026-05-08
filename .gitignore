@@ -20,3 +20,6 @@ byok_tenant_config.yaml
 .DS_Store
 .idea/
 .vscode/
+
+# Local git worktrees
+.worktrees/

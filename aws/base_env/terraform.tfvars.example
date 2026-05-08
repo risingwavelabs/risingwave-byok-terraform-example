@@ -5,7 +5,7 @@
 
 # Required: Your unique prefix (1-7 lowercase alphanumeric chars)
 # This ensures multiple users can run simultaneously without conflicts
-user_prefix = "junfeng"
+user_prefix = "alice"
 
 # Optional: AWS region (default: us-east-1)
 # region = "us-east-1"
