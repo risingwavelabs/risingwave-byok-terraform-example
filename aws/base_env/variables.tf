@@ -7,8 +7,8 @@ variable "user_prefix" {
   HELP
 
   validation {
-    condition     = can(regex("^[a-z][a-z0-9-]{0,11}$", var.user_prefix))
-    error_message = "user_prefix must be 1-12 lowercase alphanumeric characters, starting with a letter."
+    condition     = can(regex("^[a-z][a-z0-9-]{0,19}$", var.user_prefix))
+    error_message = "user_prefix must be 1-20 lowercase alphanumeric characters, starting with a letter."
   }
 }
 
