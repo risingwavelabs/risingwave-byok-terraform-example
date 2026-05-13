@@ -145,18 +145,18 @@ data "aws_iam_policy_document" "tenant_trust" {
 }
 
 data "aws_iam_policy_document" "tenant_s3" {
+  # RisingWave lays out cluster state under `data-<resource-namespace>/` and
+  # meta backups under `data-<resource-namespace>-backup/` (the `data-` path
+  # prefix is hard-coded for BYOK on AWS). Bucket-level actions
+  # (ListBucket, GetBucketLocation) are scoped to the bucket itself; object
+  # actions are scoped to the two tenant-owned prefixes only.
   statement {
-    effect = "Allow"
-    actions = [
-      "s3:GetObject",
-      "s3:PutObject",
-      "s3:DeleteObject",
-      "s3:ListBucket",
-      "s3:GetBucketLocation",
-    ]
+    effect  = "Allow"
+    actions = ["s3:*"]
     resources = [
       local.base_env.s3_bucket_arn,
-      "${local.base_env.s3_bucket_arn}/*",
+      "${local.base_env.s3_bucket_arn}/data-${var.tenant_namespace}/*",
+      "${local.base_env.s3_bucket_arn}/data-${var.tenant_namespace}-backup/*",
     ]
   }
 }
