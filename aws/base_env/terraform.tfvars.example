@@ -3,7 +3,7 @@
 # Copy this to terraform.tfvars and customize:
 #   cp terraform.tfvars.example terraform.tfvars
 
-# Required: Your unique prefix (1-7 lowercase alphanumeric chars)
+# Required: Your unique prefix (1-12 lowercase alphanumeric chars)
 # This ensures multiple users can run simultaneously without conflicts
 user_prefix = "alice"
 

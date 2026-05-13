@@ -71,9 +71,11 @@ module "eks" {
   # All other workloads are scheduled on Karpenter-managed NodePools (see k8s_addons).
   eks_managed_node_groups = {
     karpenter = {
-      name           = "${local.name_prefix}-karpenter"
-      instance_types = ["m7g.large"]
-      ami_type       = "AL2023_ARM_64_STANDARD"
+      name                           = "${local.name_prefix}-karpenter"
+      iam_role_use_name_prefix       = false
+      use_latest_ami_release_version = false # skip SSM:GetParameter (CI runners often lack this perm)
+      instance_types                 = ["m7g.large"]
+      ami_type                       = "AL2023_ARM_64_STANDARD"
 
       min_size     = 2
       max_size     = 3
