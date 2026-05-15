@@ -60,7 +60,12 @@ module "eks" {
       most_recent              = true
       service_account_role_arn = module.ebs_csi_irsa_role.arn
       configuration_values = jsonencode({
-        node       = { tolerations = [{ key = "karpenter.sh/controller", value = "true", effect = "NoSchedule" }] }
+        # The CSI Node DaemonSet must land on every node that can host a
+        # pod with a PVC. Karpenter NodePools may carry workload taints
+        # (system / cluster / telemetry / update), so tolerate any taint.
+        # The controller is a Deployment that only runs on the bootstrap
+        # karpenter MNG, so its toleration stays narrow.
+        node       = { tolerations = [{ operator = "Exists" }] }
         controller = { tolerations = [{ key = "karpenter.sh/controller", value = "true", effect = "NoSchedule" }] }
       })
     }

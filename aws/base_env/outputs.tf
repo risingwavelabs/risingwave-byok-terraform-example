@@ -1,5 +1,6 @@
 # ------------------------------------------------------------------------------
-# Outputs - All values needed to configure k8s_resources_byok module
+# Outputs — values consumed by aws/k8s_addons (via terraform_remote_state) to
+# build the BYOKConfig YAML, plus a few convenience values for kubectl etc.
 # ------------------------------------------------------------------------------
 
 # General
@@ -189,33 +190,3 @@ output "tags" {
   value       = var.tags
 }
 
-# ------------------------------------------------------------------------------
-# Convenience output: k8s_resources_byok module input variables
-# Copy this to your k8s_resources_byok tfvars or use as module input
-# ------------------------------------------------------------------------------
-output "k8s_resources_byok_inputs" {
-  description = "Input values for k8s_resources_byok module"
-  sensitive   = true
-  value = {
-    aws_account_id                    = data.aws_caller_identity.current.account_id
-    region                            = var.region
-    uuid                              = var.user_prefix
-    env_name                          = "${local.name_prefix}-env"
-    eks_cluster_name                  = module.eks.cluster_name
-    s3_bucket_name                    = aws_s3_bucket.risingwave_data.id
-    s3_bucket_arn                     = aws_s3_bucket.risingwave_data.arn
-    ebs_encryption_key_arn            = module.ebs_kms_key.key_arn
-    cloudagent_nlb_subnet_cidrs       = module.vpc.private_subnets_cidr_blocks
-    rwproxy_nlb_subnet_cidrs          = module.vpc.private_subnets_cidr_blocks
-    cloudagent_role_arn               = module.cloudagent_irsa_role.arn
-    cloudagent_target_group_arn       = aws_lb_target_group.cloudagent.arn
-    cloudagent_zpage_target_group_arn = aws_lb_target_group.cloudagent_zpage.arn
-    rwproxy_internal_target_group_arn = aws_lb_target_group.rwproxy_internal.arn
-    rwproxy_webhook_target_group_arn  = aws_lb_target_group.rwproxy_webhook.arn
-    rwproxy_metrics_target_group_arn  = aws_lb_target_group.rwproxy_metrics.arn
-    cluster_metrics_mode              = "hosted_vm"
-    cluster_logging_mode              = "hosted_loki"
-    loki_s3_bucket_arn                = aws_s3_bucket.loki_logs.arn
-    loki_role_arn                     = module.loki_irsa_role.arn
-  }
-}
