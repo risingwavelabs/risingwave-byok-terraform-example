@@ -1,0 +1,44 @@
+# See https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+#
+# Mirrors the setup in terraform-risingwave-cloud-byoc: monthly updates for
+# GitHub Actions and every root Terraform config. Vendored modules under
+# aws/modules are matched via a glob so new modules pick up updates without a
+# config change.
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      day: "sunday"
+    reviewers:
+      - "risingwavelabs/byoc-dependabot-review"
+  - package-ecosystem: "terraform"
+    directory: "/aws/base_env"
+    schedule:
+      interval: "monthly"
+      day: "sunday"
+    reviewers:
+      - "risingwavelabs/byoc-dependabot-review"
+  - package-ecosystem: "terraform"
+    directory: "/aws/k8s_addons"
+    schedule:
+      interval: "monthly"
+      day: "sunday"
+    reviewers:
+      - "risingwavelabs/byoc-dependabot-review"
+  - package-ecosystem: "terraform"
+    directory: "/aws/tenant_resources"
+    schedule:
+      interval: "monthly"
+      day: "sunday"
+    reviewers:
+      - "risingwavelabs/byoc-dependabot-review"
+  - package-ecosystem: "terraform"
+    directories:
+      - "/aws/modules/**/*"
+    schedule:
+      interval: "monthly"
+      day: "sunday"
+    reviewers:
+      - "risingwavelabs/byoc-dependabot-review"
