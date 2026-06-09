@@ -14,11 +14,16 @@ locals {
   # Use provided AZs, or default to first 3 available in the region.
   azs = length(var.availability_zones) > 0 ? var.availability_zones : slice(data.aws_availability_zones.available.names, 0, 3)
 
-  # Subnet CIDR calculations. The number of /20 subnets scales with the
-  # length of local.azs — 3 AZs → 6 subnets (3 public +
-  # 3 private); N AZs → 2N subnets. Max 8 AZs fits in the /16 with /20 pairs.
-  public_subnets  = [for i, az in local.azs : cidrsubnet(var.vpc_cidr, 4, i)]
-  private_subnets = [for i, az in local.azs : cidrsubnet(var.vpc_cidr, 4, i + length(local.azs))]
+  # Subnet CIDR calculations.
+  #
+  # Private subnets hold EKS worker nodes (and pod IPs via the AWS VPC CNI),
+  # so they need to be large. Public subnets only host NAT gateway ENIs and
+  # public load-balancer ENIs, so they can be much smaller.
+  #
+  # For a /16 VPC: three /18 (~16k IPs) for private, three /22 (~1k IPs) for
+  # public. Supports up to 3 AZs (enforced by var.availability_zones).
+  private_subnets = [for i, az in local.azs : cidrsubnet(var.vpc_cidr, 2, i)]
+  public_subnets  = [for i, az in local.azs : cidrsubnet(cidrsubnet(var.vpc_cidr, 2, 3), 4, i)]
 }
 
 module "vpc" {

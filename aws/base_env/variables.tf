@@ -41,8 +41,8 @@ variable "availability_zones" {
   default     = []
 
   validation {
-    condition     = length(var.availability_zones) == 0 || length(var.availability_zones) >= 2
-    error_message = "availability_zones must be empty (auto-detect) or list at least 2 AZs."
+    condition     = length(var.availability_zones) == 0 || (length(var.availability_zones) >= 2 && length(var.availability_zones) <= 3)
+    error_message = "availability_zones must be empty (auto-detect) or list 2 or 3 AZs (subnet layout in vpc.tf supports up to 3)."
   }
 }
 
