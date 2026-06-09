@@ -1,0 +1,29 @@
+name: pr-tf-validate
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  validation-check:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref }}
+      - uses: dorny/paths-filter@v4
+        id: filter
+        with:
+          filters: |
+            tf:
+              - '**/*.tf'
+      - name: Set up terraform
+        if: ${{ steps.filter.outputs.tf == 'true' }}
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: "1.5.7"
+      - name: Run the tf-validate
+        if: ${{ steps.filter.outputs.tf == 'true' }}
+        run: make validate-all
