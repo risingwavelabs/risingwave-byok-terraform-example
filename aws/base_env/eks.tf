@@ -147,7 +147,7 @@ module "eks" {
 # EBS CSI Driver IRSA
 module "ebs_csi_irsa_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
-  version = "6.4.0"
+  version = "6.6.1"
 
   name                  = "${local.name_prefix}-ebs-csi-irsa"
   policy_name           = "${local.name_prefix}-ebs-csi-irsa"
@@ -167,7 +167,7 @@ module "ebs_csi_irsa_role" {
 # VPC CNI IRSA
 module "vpc_cni_irsa_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
-  version = "6.4.0"
+  version = "6.6.1"
 
   name                  = "${local.name_prefix}-vpc-cni-irsa"
   policy_name           = "${local.name_prefix}-vpc-cni-irsa"
