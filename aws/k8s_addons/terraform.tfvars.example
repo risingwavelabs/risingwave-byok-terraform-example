@@ -4,20 +4,29 @@
 # All other base_env values are read via terraform_remote_state.
 # This file is for user-configurable overrides only.
 #
-# To use: copy to terraform.tfvars and uncomment desired settings.
+# To use: copy to terraform.tfvars and uncomment the desired settings.
 
-# Optional: Override chart versions (defaults align with production)
+# Optional: override chart versions (defaults align with production)
 # cert_manager_version      = "v1.19.2"
 # aws_lb_controller_version = "1.17.0"
 # karpenter_version         = "1.8.3"
 
-# Optional: Karpenter NodePool scheduling configuration
-# When taints/labels are set here, the `byok_config_yaml` output automatically
+# Optional: Karpenter NodePool configuration
+#
+# The four blocks below mirror the recommended BYOC node pools in
+# terraform-risingwave-cloud-byoc (aws/k8s_resources/karpenter_nodepool_spec.tf).
+# Uncomment to apply the full recommended setup; otherwise the defaults in
+# variables.tf are used (same instance_types but no labels/taints/cpu_limit).
+#
+# When taints/labels are set, the `byok_config_yaml` output automatically
 # includes the matching scheduling section (tolerations/nodeAffinity) so
 # RisingWave-managed workloads schedule onto the correct nodes.
+
+# System workloads — CloudAgent, RWProxy, monitoring, kube-system, etc.
+# BYOC reference: dm-2v8g-nonsys
 #
 # system_nodepool = {
-#   instance_types = ["m7g.large", "m7g.xlarge"]
+#   instance_types = ["m7g.large"] # 2c8g
 #   labels         = { "risingwave.com/workload" = "system" }
 #   taints = [
 #     {
@@ -26,11 +35,24 @@
 #       effect = "NoSchedule"
 #     },
 #   ]
+#   # max_size = 30 x 3 zones = 90; 90 * 2c = 180
+#   cpu_limit = "180"
 # }
+
+# RisingWave workloads — meta, frontend, compute nodes.
+# BYOC reference: front-1c4m (1:4 CPU:memory ratio)
 #
 # rw_nodepool = {
-#   instance_types = ["m7g.xlarge", "m7g.2xlarge"]
-#   labels         = { "risingwave.com/workload" = "risingwave" }
+#   instance_types = [
+#     "m7g.large",    # 2c8g
+#     "m7g.xlarge",   # 4c16g
+#     "m7g.2xlarge",  # 8c32g
+#     "m7g.4xlarge",  # 16c64g
+#     "m7g.8xlarge",  # 32c128g
+#     "m7g.12xlarge", # 48c192g
+#     "m7g.16xlarge", # 64c256g
+#   ]
+#   labels = { "risingwave.com/workload" = "risingwave" }
 #   taints = [
 #     {
 #       key    = "risingwave.com/workload"
@@ -38,4 +60,40 @@
 #       effect = "NoSchedule"
 #     },
 #   ]
+#   # max_size = 30 x 3 zones = 90; 90 * (2c + 4c + 8c + 16c + 32c + 48c + 64c) = 15660
+#   cpu_limit = "15660"
+# }
+
+# Self-hosted telemetry — VictoriaMetrics, Loki, Alloy.
+# BYOC reference: hosted-telemetry
+#
+# telemetry_nodepool = {
+#   instance_types = ["m7g.xlarge"] # 4c16g
+#   labels         = { "risingwave.com/workload" = "telemetry" }
+#   taints = [
+#     {
+#       key    = "risingwave.com/workload"
+#       value  = "telemetry"
+#       effect = "NoSchedule"
+#     },
+#   ]
+#   # max_size = 5 x 3 zones = 15; 15 * 4c = 60
+#   cpu_limit = "60"
+# }
+
+# BYOK update task pods — terraform apply jobs.
+# BYOC reference: byoc-gen-8c32g
+#
+# update_nodepool = {
+#   instance_types = ["m7g.2xlarge"] # 8c32g
+#   labels         = { "risingwave.com/workload" = "update" }
+#   taints = [
+#     {
+#       key    = "risingwave.com/workload"
+#       value  = "update"
+#       effect = "NoSchedule"
+#     },
+#   ]
+#   # max_size = 5 x 3 zones = 15; 15 * 8c = 120
+#   cpu_limit = "120"
 # }
