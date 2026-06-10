@@ -21,6 +21,16 @@ module "eks" {
   endpoint_public_access  = true
   endpoint_private_access = true
 
+  # Disable EKS control-plane logging to CloudWatch.
+  # BYOK environments deploy in-cluster observability (VictoriaMetrics + Loki
+  # + Alloy) via k8s_addons as the system of record, so control-plane logs in
+  # CloudWatch would be duplicate cost. cluster_enabled_log_types=[] stops the
+  # cluster from emitting logs; create_cloudwatch_log_group=false prevents an
+  # empty log group from being created at all. Operators who want CW logs can
+  # override both — the module defaults flip the behavior back on.
+  enabled_log_types           = []
+  create_cloudwatch_log_group = false
+
   # Allow the current user to administer the cluster
   enable_cluster_creator_admin_permissions = true
 
