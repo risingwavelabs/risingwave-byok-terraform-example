@@ -1,6 +1,21 @@
 # ------------------------------------------------------------------------------
 # Tenant identity (from `rwc cluster describe`)
 # ------------------------------------------------------------------------------
+variable "tenant_name" {
+  type        = string
+  description = <<-HELP
+  Short, human-readable name for the tenant (e.g. \"dev\", \"prod\"). Used as a
+  suffix in tenant-scoped resource names so multiple tenants in the same
+  BYOK env don't collide (RDS instance, IAM role, etc.). Must be 1-20
+  lowercase alphanumeric (hyphens allowed, not leading/trailing).
+  HELP
+
+  validation {
+    condition     = can(regex("^[a-z0-9]([a-z0-9-]{0,18}[a-z0-9])?$", var.tenant_name))
+    error_message = "tenant_name must be 1-20 lowercase alphanumeric chars (hyphens allowed, not leading or trailing)."
+  }
+}
+
 variable "tenant_namespace" {
   type        = string
   description = "Kubernetes namespace for the tenant (ResourceNamespace from rwc cluster describe)."

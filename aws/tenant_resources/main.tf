@@ -36,10 +36,13 @@ data "terraform_remote_state" "base_env" {
 }
 
 locals {
-  base_env    = data.terraform_remote_state.base_env.outputs
-  name_prefix = local.base_env.name_prefix
+  base_env = data.terraform_remote_state.base_env.outputs
+  # name_prefix includes the tenant_name so multiple tenants in the same
+  # BYOK env get non-colliding resource names (RDS instance, IAM role, etc.).
+  name_prefix = "${local.base_env.name_prefix}-${var.tenant_name}"
   tags = merge(local.base_env.tags, var.tags, {
     Component = "byok-tenant-resources"
+    Tenant    = var.tenant_name
   })
 }
 
