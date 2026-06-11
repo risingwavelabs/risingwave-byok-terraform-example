@@ -6,9 +6,11 @@ variable "user_prefix" {
   Example: "alice", "bob", "team1"
   HELP
 
+  # Length capped at 20 because "byok-<user_prefix>-ca-zp" must fit in
+  # the AWS NLB target group 32-char limit.
   validation {
-    condition     = can(regex("^[a-z][a-z0-9-]{0,19}$", var.user_prefix))
-    error_message = "user_prefix must be 1-20 lowercase alphanumeric characters, starting with a letter."
+    condition     = can(regex("^[a-z0-9]([a-z0-9-]{0,18}[a-z0-9])?$", var.user_prefix))
+    error_message = "user_prefix must be 1-20 lowercase alphanumeric chars (hyphens allowed, not leading or trailing)."
   }
 }
 
