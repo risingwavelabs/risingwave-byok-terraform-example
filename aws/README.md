@@ -41,6 +41,7 @@ rwc cluster describe --uuid <uuid>
 cd ../tenant_resources
 terraform init
 terraform apply \
+  -var "tenant_name=<short-tenant-name>" \
   -var "tenant_namespace=<resource-namespace>" \
   -var "tenant_service_account=<service-account>" \
   -var "rds_password=<choose-a-strong-password>"

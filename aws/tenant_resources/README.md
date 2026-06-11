@@ -34,10 +34,11 @@ This is **Phase 2** of the two-phase BYOK cluster creation flow. Before applying
 
 | Variable | Description |
 | --- | --- |
+| `tenant_name` | Short human-readable tenant name (e.g. `dev`, `prod`). Appended to base_env's `name_prefix` so multiple tenants don't collide on RDS / IAM names. |
 | `tenant_namespace` | `Resource Namespace` from `rwc cluster describe` |
 | `tenant_service_account` | `Service Account` from `rwc cluster describe` |
 | `rds_password` | Master password for the RDS metastore (sensitive) |
-| `rds_instance_class` | Default `db.t4g.micro`; size up for production |
+| `rds_instance_class` | Default `db.t4g.large`; size up for production |
 | `rds_db_name` | Default `risingwave` |
 | `rds_username` | Default `risingwave` |
 
@@ -46,6 +47,7 @@ This is **Phase 2** of the two-phase BYOK cluster creation flow. Before applying
 ```bash
 terraform init
 terraform apply \
+  -var "tenant_name=dev" \
   -var "tenant_namespace=rwc-xxxxxxxxxxxx-my-cluster" \
   -var "tenant_service_account=my-cluster" \
   -var "rds_password=<choose-a-strong-password>"
@@ -74,6 +76,7 @@ This transitions the cluster from `AwaitingConfig` to `Creating` and triggers pr
 
 ```bash
 terraform destroy \
+  -var "tenant_name=dev" \
   -var "tenant_namespace=unused" \
   -var "tenant_service_account=unused" \
   -var "rds_password=unused"
