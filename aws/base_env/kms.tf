@@ -41,7 +41,7 @@ module "ebs_kms_key" {
         "kms:DescribeKey",
       ]
       resources = ["*"]
-      conditions = [
+      condition = [
         {
           test     = "StringEquals"
           variable = "kms:ViaService"
