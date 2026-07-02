@@ -81,6 +81,16 @@ module "eks" {
     }
   }
 
+  # The vpc-cni addon above sets ENABLE_POD_ENI=true (Security Groups for Pods).
+  # That makes the control-plane VPC Resource Controller attach a trunk ENI to
+  # each node, which requires AmazonEKSVPCResourceController on the cluster IAM
+  # role. The eks module only attaches AmazonEKSClusterPolicy by default, so
+  # without this the controller fails with UnauthorizedOperation and emits
+  # repeated TrunkENICreationFailed warnings.
+  iam_role_additional_policies = {
+    AmazonEKSVPCResourceController = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"
+  }
+
   # Managed node group for Karpenter controller
   # Karpenter itself needs a static MNG (self-hosting would create a chicken-and-egg problem).
   # All other workloads are scheduled on Karpenter-managed NodePools (see k8s_addons).
