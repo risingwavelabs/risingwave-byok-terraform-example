@@ -49,8 +49,20 @@ variable "rds_username" {
 
 variable "rds_password" {
   type        = string
-  description = "Master password for the RDS instance."
+  description = <<-HELP
+  Master password for the RDS metastore. RisingWave Cloud embeds this in the
+  metastore connection URL, so it must use only RFC 3986 unreserved characters:
+  A-Z a-z 0-9 and _ ~ . -  (no @ / : or spaces). AWS RDS itself accepts a wider
+  set, but `rwc cluster byok-config` rejects anything outside this alphabet with
+  HTTP 400 — validate here so a bad password fails at plan time, before the RDS
+  instance is ever created.
+  HELP
   sensitive   = true
+
+  validation {
+    condition     = can(regex("^[A-Za-z0-9_~.-]{8,128}$", var.rds_password))
+    error_message = "rds_password must be 8-128 characters from the RisingWave-supported alphabet: A-Z a-z 0-9 _ ~ . - (RDS accepts more, but rwc cluster byok-config rejects them)."
+  }
 }
 
 variable "tags" {
