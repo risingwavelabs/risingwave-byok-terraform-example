@@ -54,6 +54,24 @@ variable "kubernetes_version" {
   default     = "1.33"
 }
 
+variable "eks_auto_mode" {
+  type        = bool
+  description = <<-HELP
+  Provision the EKS cluster in Auto Mode (custom node pools) instead of the
+  standard OSS-Karpenter setup. When true:
+    - the cluster enables compute_config + create_auto_mode_iam_resources
+      (Auto Mode manages the node IAM role, and coredns/kube-proxy/vpc-cni/
+      ebs-csi are built in), so those cluster addons, the Karpenter bootstrap
+      managed node group, Security-Groups-for-Pods (ENABLE_POD_ENI), and the
+      ebs-csi/vpc-cni IRSA roles are all dropped;
+    - k8s_addons applies Auto Mode NodePools + eks.amazonaws.com/v1 NodeClasses
+      instead of OSS Karpenter + EC2NodeClass.
+  Create-time only: it cannot be flipped on an existing cluster (the two EBS
+  CSI drivers cannot attach each other's volumes).
+  HELP
+  default     = false
+}
+
 variable "tags" {
   type        = map(string)
   default     = {}

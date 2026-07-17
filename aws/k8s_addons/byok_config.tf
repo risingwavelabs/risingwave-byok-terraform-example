@@ -149,7 +149,9 @@ locals {
     {
       cloud_provider = "aws"
       region         = local.base_env.region
-      aws = {
+      # eks_auto_mode is only emitted when true (the CLI treats it as
+      # omitempty), so standard-mode byok_config.yaml stays unchanged.
+      aws = merge(local.eks_auto_mode ? { eks_auto_mode = true } : {}, {
         account_id       = local.base_env.aws_account_id
         eks_cluster_name = local.base_env.eks_cluster_name
         s3_buckets = {
@@ -176,7 +178,7 @@ locals {
           s3_bucket_name      = local.base_env.terraform_state_s3_bucket_name
           dynamodb_table_name = local.base_env.terraform_lock_dynamodb_table_name
         }
-      }
+      })
     },
     length(local.customized_settings_entries) > 0 ? { customized_settings = local.customized_settings_entries } : {},
   )
