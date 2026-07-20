@@ -47,6 +47,19 @@ locals {
     budgets             = [{ nodes = "60%", reasons = ["Empty", "Drifted", "Underutilized"] }]
   }
 
+  # Single source of truth: base_env decides the cluster topology and exposes it.
+  # try() keeps k8s_addons working against base_env states applied before the
+  # eks_auto_mode output existed (defaults to standard OSS-Karpenter).
+  eks_auto_mode          = try(local.base_env.eks_auto_mode, false)
+  eks_node_iam_role_name = try(local.base_env.eks_node_iam_role_name, "")
+
+  # Auto Mode uses one ephemeralStorage volume per node (vs. the OSS
+  # blockDeviceMappings), encrypted with the same EBS KMS key.
+  auto_mode_ephemeral_storage = {
+    size       = "80Gi"
+    kms_key_id = local.base_env.ebs_encryption_key_arn
+  }
+
   # Tolerations for pre-BYOK add-ons (cert-manager, AWS LB Controller) that must
   # land on system nodes when the system Karpenter NodePool has taints. Derived
   # from var.system_nodepool.taints so the tolerations stay in sync with whatever
@@ -64,7 +77,7 @@ locals {
 module "karpenter" {
   source = "../modules/karpenter"
 
-  enabled          = true
+  enabled          = !local.eks_auto_mode
   cluster_id       = var.eks_cluster_name
   cluster_endpoint = local.base_env.eks_cluster_endpoint
 
@@ -84,7 +97,7 @@ module "karpenter" {
 module "nodepool_system" {
   source = "../modules/karpenter_nodepool"
 
-  enabled            = true
+  enabled            = !local.eks_auto_mode
   cluster_id         = var.eks_cluster_name
   node_iam_role_name = module.karpenter.karpenter_node_iam_role_name
   name               = "system"
@@ -106,7 +119,7 @@ module "nodepool_system" {
 module "nodepool_rw" {
   source = "../modules/karpenter_nodepool"
 
-  enabled            = true
+  enabled            = !local.eks_auto_mode
   cluster_id         = var.eks_cluster_name
   node_iam_role_name = module.karpenter.karpenter_node_iam_role_name
   name               = "rw"
@@ -130,7 +143,7 @@ module "nodepool_rw" {
 module "nodepool_update" {
   source = "../modules/karpenter_nodepool"
 
-  enabled            = true
+  enabled            = !local.eks_auto_mode
   cluster_id         = var.eks_cluster_name
   node_iam_role_name = module.karpenter.karpenter_node_iam_role_name
   name               = "update"
@@ -152,7 +165,7 @@ module "nodepool_update" {
 module "nodepool_telemetry" {
   source = "../modules/karpenter_nodepool"
 
-  enabled            = true
+  enabled            = !local.eks_auto_mode
   cluster_id         = var.eks_cluster_name
   node_iam_role_name = module.karpenter.karpenter_node_iam_role_name
   name               = "telemetry"
@@ -168,6 +181,84 @@ module "nodepool_telemetry" {
   disruption            = local.default_disruption
 
   depends_on = [module.karpenter]
+}
+
+# ------------------------------------------------------------------------------
+# EKS Auto Mode NodePools + NodeClasses (var eks_auto_mode = true)
+#
+# Auto Mode counterparts of the four OSS Karpenter NodePools above — same names,
+# labels, taints, instance types, cpu limits, and disruption — but backed by
+# eks.amazonaws.com/v1 NodeClasses and the Auto-Mode-managed node IAM role. AWS
+# manages the AMI/bootstrap, so there is no Karpenter controller/MNG. Disk comes
+# from a single encrypted ephemeralStorage volume instead of blockDeviceMappings.
+# ------------------------------------------------------------------------------
+
+module "auto_mode_nodepool_system" {
+  source = "../modules/auto_mode_nodepool"
+
+  enabled            = local.eks_auto_mode
+  cluster_id         = var.eks_cluster_name
+  node_iam_role_name = local.eks_node_iam_role_name
+  name               = "system"
+  instance_types     = var.system_nodepool.instance_types
+  labels             = var.system_nodepool.labels
+  taints             = var.system_nodepool.taints
+  cpu_limit          = var.system_nodepool.cpu_limit
+  capacity_types     = ["on-demand"]
+
+  ephemeral_storage = local.auto_mode_ephemeral_storage
+  disruption        = local.default_disruption
+}
+
+module "auto_mode_nodepool_rw" {
+  source = "../modules/auto_mode_nodepool"
+
+  enabled            = local.eks_auto_mode
+  cluster_id         = var.eks_cluster_name
+  node_iam_role_name = local.eks_node_iam_role_name
+  name               = "rw"
+  instance_types     = var.rw_nodepool.instance_types
+  labels             = var.rw_nodepool.labels
+  taints             = var.rw_nodepool.taints
+  cpu_limit          = var.rw_nodepool.cpu_limit
+  capacity_types     = ["on-demand"]
+
+  ephemeral_storage = local.auto_mode_ephemeral_storage
+  disruption        = local.default_disruption
+}
+
+module "auto_mode_nodepool_update" {
+  source = "../modules/auto_mode_nodepool"
+
+  enabled            = local.eks_auto_mode
+  cluster_id         = var.eks_cluster_name
+  node_iam_role_name = local.eks_node_iam_role_name
+  name               = "update"
+  instance_types     = var.update_nodepool.instance_types
+  labels             = var.update_nodepool.labels
+  taints             = var.update_nodepool.taints
+  cpu_limit          = var.update_nodepool.cpu_limit
+  capacity_types     = ["on-demand"]
+
+  ephemeral_storage = local.auto_mode_ephemeral_storage
+  disruption        = local.default_disruption
+}
+
+module "auto_mode_nodepool_telemetry" {
+  source = "../modules/auto_mode_nodepool"
+
+  enabled            = local.eks_auto_mode
+  cluster_id         = var.eks_cluster_name
+  node_iam_role_name = local.eks_node_iam_role_name
+  name               = "telemetry"
+  instance_types     = var.telemetry_nodepool.instance_types
+  labels             = var.telemetry_nodepool.labels
+  taints             = var.telemetry_nodepool.taints
+  cpu_limit          = var.telemetry_nodepool.cpu_limit
+  capacity_types     = ["on-demand"]
+
+  ephemeral_storage = local.auto_mode_ephemeral_storage
+  disruption        = local.default_disruption
 }
 
 # ------------------------------------------------------------------------------
@@ -225,7 +316,14 @@ resource "helm_release" "cert_manager" {
     }
   })]
 
-  depends_on = [module.nodepool_system, module.nodepool_rw]
+  # Wait for whichever set of nodepools is active (OSS or Auto Mode) so
+  # cert-manager pods have somewhere to schedule.
+  depends_on = [
+    module.nodepool_system,
+    module.nodepool_rw,
+    module.auto_mode_nodepool_system,
+    module.auto_mode_nodepool_rw,
+  ]
 }
 
 # AWS Load Balancer Controller

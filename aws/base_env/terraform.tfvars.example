@@ -21,6 +21,12 @@ user_prefix = "alice"
 # Optional: Kubernetes version (default: 1.33)
 # kubernetes_version = "1.33"
 
+# Optional: Provision the cluster in EKS Auto Mode with custom node pools
+# instead of the standard OSS-Karpenter setup (default: false). Create-time
+# only — it cannot be flipped on an existing cluster. k8s_addons reads this
+# from base_env's output, so set it here only.
+# eks_auto_mode = true
+
 # Optional: RisingWave control plane AWS account ID (for VPC endpoint service)
 # Default is the RisingWave Cloud production account.
 # control_plane_aws_account_id = "600598779918"

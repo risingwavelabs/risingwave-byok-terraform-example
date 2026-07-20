@@ -67,6 +67,16 @@ output "eks_oidc_provider_arn" {
   value       = module.eks.oidc_provider_arn
 }
 
+output "eks_auto_mode" {
+  description = "Whether the cluster runs in EKS Auto Mode."
+  value       = var.eks_auto_mode
+}
+
+output "eks_node_iam_role_name" {
+  description = "EKS Auto Mode node IAM role name (empty in standard mode). Consumed by the k8s_addons Auto Mode NodeClass.spec.role."
+  value       = module.eks.node_iam_role_name != null ? module.eks.node_iam_role_name : ""
+}
+
 output "eks_oidc_issuer_url" {
   description = "EKS OIDC issuer URL"
   value       = module.eks.cluster_oidc_issuer_url
@@ -189,4 +199,3 @@ output "tags" {
   description = "User-provided custom tags"
   value       = var.tags
 }
-

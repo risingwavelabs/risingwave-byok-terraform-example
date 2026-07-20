@@ -14,11 +14,16 @@ module "ebs_kms_key" {
 
   description = "KMS key for EBS encryption in BYOK test environment"
 
-  # Allow the autoscaling service-linked role to use the key
+  # Allow the autoscaling service-linked role and EKS cluster role to use the
+  # key for encrypted EBS volumes.
   key_service_roles_for_autoscaling = [
     "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/autoscaling.amazonaws.com/AWSServiceRoleForAutoScaling",
     module.eks.cluster_iam_role_arn,
   ]
+
+  # Auto Mode requires the cluster role to manage the complete lifecycle of
+  # grants used for encrypted ephemeral node volumes.
+  key_service_users = var.eks_auto_mode ? [module.eks.cluster_iam_role_arn] : []
 
   # Allow Karpenter-launched nodes to use encrypted EBS volumes
   # https://karpenter.sh/docs/troubleshooting/#node-terminates-before-ready-on-failed-encrypted-ebs-volume
