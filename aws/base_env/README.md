@@ -29,7 +29,7 @@ Common optional overrides — see [variables.tf](variables.tf) for the full list
 | --- | --- |
 | `region` | `us-east-1` |
 | `vpc_cidr` | `10.0.0.0/16` |
-| `kubernetes_version` | `1.33` |
+| `kubernetes_version` | `1.34` |
 | `control_plane_aws_account_id` | `600598779918` (RisingWave Cloud production) |
 
 

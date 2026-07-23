@@ -18,8 +18,8 @@ user_prefix = "alice"
 # Defaults to the first 3 AZs in the region. Override to use specific AZs.
 # availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
 
-# Optional: Kubernetes version (default: 1.33)
-# kubernetes_version = "1.33"
+# Optional: Kubernetes version (default: 1.34)
+# kubernetes_version = "1.34"
 
 # Optional: Provision the cluster in EKS Auto Mode with custom node pools
 # instead of the standard OSS-Karpenter setup (default: false). Create-time
