@@ -51,7 +51,7 @@ variable "availability_zones" {
 variable "kubernetes_version" {
   type        = string
   description = "Kubernetes version for EKS cluster."
-  default     = "1.33"
+  default     = "1.34"
 }
 
 variable "eks_auto_mode" {
