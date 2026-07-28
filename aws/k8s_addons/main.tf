@@ -2,10 +2,10 @@
 # Kubernetes Add-ons for BYOK Test Environment
 # - Karpenter (dynamic node provisioning)
 # - cert-manager (v1.18.2+ required per BYOK spec)
-# - AWS Load Balancer Controller (required for NLB provisioning)
+# - AWS Load Balancer Controller (standard EKS only; Auto Mode uses native TGBs)
 #
 # Deployment order:
-#   Karpenter controller → NodePools → cert-manager → AWS LB Controller
+#   Node provisioning → NodePools → cert-manager → optional AWS LB Controller
 #
 # Karpenter runs on the dedicated tainted MNG. Once NodePools are applied,
 # Karpenter provisions untainted nodes for everything else.
@@ -50,8 +50,9 @@ locals {
   # Single source of truth: base_env decides the cluster topology and exposes it.
   # try() keeps k8s_addons working against base_env states applied before the
   # eks_auto_mode output existed (defaults to standard OSS-Karpenter).
-  eks_auto_mode          = try(local.base_env.eks_auto_mode, false)
-  eks_node_iam_role_name = try(local.base_env.eks_node_iam_role_name, "")
+  eks_auto_mode                         = try(local.base_env.eks_auto_mode, false)
+  eks_node_iam_role_name                = try(local.base_env.eks_node_iam_role_name, "")
+  eks_cluster_primary_security_group_id = try(local.base_env.eks_cluster_primary_security_group_id, "")
 
   # Auto Mode uses one ephemeralStorage volume per node (vs. the OSS
   # blockDeviceMappings), encrypted with the same EBS KMS key.
@@ -196,15 +197,16 @@ module "nodepool_telemetry" {
 module "auto_mode_nodepool_system" {
   source = "../modules/auto_mode_nodepool"
 
-  enabled            = local.eks_auto_mode
-  cluster_id         = var.eks_cluster_name
-  node_iam_role_name = local.eks_node_iam_role_name
-  name               = "system"
-  instance_types     = var.system_nodepool.instance_types
-  labels             = var.system_nodepool.labels
-  taints             = var.system_nodepool.taints
-  cpu_limit          = var.system_nodepool.cpu_limit
-  capacity_types     = ["on-demand"]
+  enabled                       = local.eks_auto_mode
+  cluster_id                    = var.eks_cluster_name
+  node_iam_role_name            = local.eks_node_iam_role_name
+  name                          = "system"
+  instance_types                = var.system_nodepool.instance_types
+  labels                        = var.system_nodepool.labels
+  taints                        = var.system_nodepool.taints
+  cpu_limit                     = var.system_nodepool.cpu_limit
+  capacity_types                = ["on-demand"]
+  additional_security_group_ids = [local.eks_cluster_primary_security_group_id]
 
   ephemeral_storage = local.auto_mode_ephemeral_storage
   disruption        = local.default_disruption
@@ -213,15 +215,16 @@ module "auto_mode_nodepool_system" {
 module "auto_mode_nodepool_rw" {
   source = "../modules/auto_mode_nodepool"
 
-  enabled            = local.eks_auto_mode
-  cluster_id         = var.eks_cluster_name
-  node_iam_role_name = local.eks_node_iam_role_name
-  name               = "rw"
-  instance_types     = var.rw_nodepool.instance_types
-  labels             = var.rw_nodepool.labels
-  taints             = var.rw_nodepool.taints
-  cpu_limit          = var.rw_nodepool.cpu_limit
-  capacity_types     = ["on-demand"]
+  enabled                       = local.eks_auto_mode
+  cluster_id                    = var.eks_cluster_name
+  node_iam_role_name            = local.eks_node_iam_role_name
+  name                          = "rw"
+  instance_types                = var.rw_nodepool.instance_types
+  labels                        = var.rw_nodepool.labels
+  taints                        = var.rw_nodepool.taints
+  cpu_limit                     = var.rw_nodepool.cpu_limit
+  capacity_types                = ["on-demand"]
+  additional_security_group_ids = [local.eks_cluster_primary_security_group_id]
 
   ephemeral_storage = local.auto_mode_ephemeral_storage
   disruption        = local.default_disruption
@@ -230,15 +233,16 @@ module "auto_mode_nodepool_rw" {
 module "auto_mode_nodepool_update" {
   source = "../modules/auto_mode_nodepool"
 
-  enabled            = local.eks_auto_mode
-  cluster_id         = var.eks_cluster_name
-  node_iam_role_name = local.eks_node_iam_role_name
-  name               = "update"
-  instance_types     = var.update_nodepool.instance_types
-  labels             = var.update_nodepool.labels
-  taints             = var.update_nodepool.taints
-  cpu_limit          = var.update_nodepool.cpu_limit
-  capacity_types     = ["on-demand"]
+  enabled                       = local.eks_auto_mode
+  cluster_id                    = var.eks_cluster_name
+  node_iam_role_name            = local.eks_node_iam_role_name
+  name                          = "update"
+  instance_types                = var.update_nodepool.instance_types
+  labels                        = var.update_nodepool.labels
+  taints                        = var.update_nodepool.taints
+  cpu_limit                     = var.update_nodepool.cpu_limit
+  capacity_types                = ["on-demand"]
+  additional_security_group_ids = [local.eks_cluster_primary_security_group_id]
 
   ephemeral_storage = local.auto_mode_ephemeral_storage
   disruption        = local.default_disruption
@@ -247,15 +251,16 @@ module "auto_mode_nodepool_update" {
 module "auto_mode_nodepool_telemetry" {
   source = "../modules/auto_mode_nodepool"
 
-  enabled            = local.eks_auto_mode
-  cluster_id         = var.eks_cluster_name
-  node_iam_role_name = local.eks_node_iam_role_name
-  name               = "telemetry"
-  instance_types     = var.telemetry_nodepool.instance_types
-  labels             = var.telemetry_nodepool.labels
-  taints             = var.telemetry_nodepool.taints
-  cpu_limit          = var.telemetry_nodepool.cpu_limit
-  capacity_types     = ["on-demand"]
+  enabled                       = local.eks_auto_mode
+  cluster_id                    = var.eks_cluster_name
+  node_iam_role_name            = local.eks_node_iam_role_name
+  name                          = "telemetry"
+  instance_types                = var.telemetry_nodepool.instance_types
+  labels                        = var.telemetry_nodepool.labels
+  taints                        = var.telemetry_nodepool.taints
+  cpu_limit                     = var.telemetry_nodepool.cpu_limit
+  capacity_types                = ["on-demand"]
+  additional_security_group_ids = [local.eks_cluster_primary_security_group_id]
 
   ephemeral_storage = local.auto_mode_ephemeral_storage
   disruption        = local.default_disruption
@@ -327,7 +332,16 @@ resource "helm_release" "cert_manager" {
 }
 
 # AWS Load Balancer Controller
+module "eks_auto_mode_load_balancing" {
+  source = "../modules/eks_auto_mode_load_balancing"
+
+  enabled      = local.eks_auto_mode
+  cluster_name = var.eks_cluster_name
+}
+
 resource "helm_release" "aws_load_balancer_controller" {
+  count = module.eks_auto_mode_load_balancing.self_managed_controller_enabled ? 1 : 0
+
   name       = "aws-load-balancer-controller"
   namespace  = "kube-system"
   repository = "https://aws.github.io/eks-charts"

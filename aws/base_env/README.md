@@ -7,12 +7,12 @@ Provisions the AWS infrastructure that RisingWave Cloud BYOK requires you to bri
 | Resource | Purpose |
 | --- | --- |
 | VPC + public/private subnets across 3 AZs, NAT gateway, S3 endpoint | Network foundation for the BYOK environment |
-| EKS cluster + Karpenter controller managed node group | Kubernetes cluster that hosts BYOK workloads |
-| EBS CSI driver, VPC CNI add-ons | Required EKS add-ons |
+| EKS cluster | Standard EKS uses a Karpenter controller managed node group; Auto Mode uses AWS-managed compute |
+| EBS CSI driver, VPC CNI add-ons | Standard EKS only; Auto Mode provides these capabilities natively |
 | 2 S3 buckets | Data store (RisingWave state) and log store (Loki) |
 | KMS key | EBS volume encryption |
-| IAM roles (with IRSA) | CloudAgent, Loki, AWS Load Balancer Controller |
-| 2 NLBs + 5 target groups | CloudAgent (40001 + zpage 40090) and RWProxy (4566 + webhook 4580 + metrics 9099) |
+| IAM roles (with IRSA) | CloudAgent and Loki; AWS Load Balancer Controller in standard EKS only |
+| 2 NLBs + 5 target groups | CloudAgent (40001 + zpage 40090) and RWProxy (4566 + webhook 4580 + metrics 9099); Auto Mode also creates an NLB security group, allows direct RWProxy clients from the VPC CIDR, and permits target traffic to the cluster security group on these ports |
 | 2 VPC Endpoint Services | PrivateLink connectivity from the RisingWave control plane |
 
 ## Inputs
@@ -29,6 +29,7 @@ Common optional overrides — see [variables.tf](variables.tf) for the full list
 | --- | --- |
 | `region` | `us-east-1` |
 | `vpc_cidr` | `10.0.0.0/16` |
+| `rwproxy_additional_client_cidrs` | `[]` (the VPC CIDR is always allowed in Auto Mode) |
 | `kubernetes_version` | `1.34` |
 | `control_plane_aws_account_id` | `600598779918` (RisingWave Cloud production) |
 
@@ -53,7 +54,7 @@ aws eks update-kubeconfig \
 
 ## Next step
 
-Apply the [`k8s_addons`](../k8s_addons/) module to install cert-manager, AWS Load Balancer Controller, and Karpenter NodePools.
+Apply the [`k8s_addons`](../k8s_addons/) module to install cert-manager and the selected cluster mode's NodePools. It installs the AWS Load Balancer Controller for standard EKS; EKS Auto Mode uses native load balancing.
 
 ## Destroy
 

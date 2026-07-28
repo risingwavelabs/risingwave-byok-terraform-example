@@ -13,6 +13,10 @@ user_prefix = "alice"
 # Optional: VPC CIDR (default: 10.0.0.0/16)
 # vpc_cidr = "10.0.0.0/16"
 
+# Optional: Additional routed CIDRs that may connect directly to the RWProxy
+# NLB in EKS Auto Mode. The VPC CIDR is always allowed.
+# rwproxy_additional_client_cidrs = ["10.20.0.0/16"]
+
 # Optional: AWS Availability Zone IDs (not names) for VPC subnets and NLBs.
 # Default covers the AZs the RWC test-useast1 control plane currently uses,
 # Defaults to the first 3 AZs in the region. Override to use specific AZs.

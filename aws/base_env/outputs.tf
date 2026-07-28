@@ -72,6 +72,11 @@ output "eks_auto_mode" {
   value       = var.eks_auto_mode
 }
 
+output "eks_cluster_primary_security_group_id" {
+  description = "Primary EKS cluster security group used by Auto Mode nodes and native load balancing."
+  value       = module.eks.cluster_primary_security_group_id
+}
+
 output "eks_node_iam_role_name" {
   description = "EKS Auto Mode node IAM role name (empty in standard mode). Consumed by the k8s_addons Auto Mode NodeClass.spec.role."
   value       = module.eks.node_iam_role_name != null ? module.eks.node_iam_role_name : ""
@@ -134,7 +139,7 @@ output "cloudagent_role_arn" {
 
 output "aws_lb_controller_role_arn" {
   description = "IAM role ARN for AWS Load Balancer Controller"
-  value       = module.aws_lb_controller_irsa_role.arn
+  value       = var.eks_auto_mode ? "" : module.aws_lb_controller_irsa_role[0].arn
 }
 
 # NLBs and Target Groups

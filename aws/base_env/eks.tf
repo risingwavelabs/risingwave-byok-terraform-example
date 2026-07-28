@@ -226,19 +226,6 @@ resource "aws_eks_access_policy_association" "auto_mode_node" {
   depends_on = [aws_eks_access_entry.auto_mode_node]
 }
 
-# The two IRSA roles gained a count for the eks_auto_mode toggle. Migrate the
-# existing (un-indexed) state to the [0] instance so standard-mode envs don't
-# destroy/recreate their IRSA roles on upgrade.
-moved {
-  from = module.ebs_csi_irsa_role
-  to   = module.ebs_csi_irsa_role[0]
-}
-
-moved {
-  from = module.vpc_cni_irsa_role
-  to   = module.vpc_cni_irsa_role[0]
-}
-
 # EBS CSI Driver IRSA (standard mode only — Auto Mode has a built-in EBS driver)
 module "ebs_csi_irsa_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"

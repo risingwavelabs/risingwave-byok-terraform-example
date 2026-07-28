@@ -32,6 +32,12 @@ variable "vpc_cidr" {
   default     = "10.0.0.0/16"
 }
 
+variable "rwproxy_additional_client_cidrs" {
+  type        = list(string)
+  description = "Additional routed CIDR blocks allowed to connect directly to the RWProxy NLB in EKS Auto Mode. The VPC CIDR is always allowed."
+  default     = []
+}
+
 variable "availability_zones" {
   type        = list(string)
   description = <<-HELP
@@ -65,7 +71,10 @@ variable "eks_auto_mode" {
       managed node group, Security-Groups-for-Pods (ENABLE_POD_ENI), and the
       ebs-csi/vpc-cni IRSA roles are all dropped;
     - k8s_addons applies Auto Mode NodePools + eks.amazonaws.com/v1 NodeClasses
-      instead of OSS Karpenter + EC2NodeClass.
+      instead of OSS Karpenter + EC2NodeClass;
+    - pre-created target groups and NLB security groups are configured for the
+      EKS native TargetGroupBinding controller, while the self-managed AWS Load
+      Balancer Controller and its IRSA role are omitted.
   Create-time only: it cannot be flipped on an existing cluster (the two EBS
   CSI drivers cannot attach each other's volumes).
   HELP
