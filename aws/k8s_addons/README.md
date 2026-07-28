@@ -1,6 +1,6 @@
 # aws/k8s_addons
 
-Installs the Kubernetes add-ons that BYOK requires, configures Karpenter NodePools, and emits the `byok_config.yaml` you feed into `rwc byok create`.
+Installs the Kubernetes add-ons that BYOK requires, configures Karpenter or EKS Auto Mode NodePools, and emits the `byok_config.yaml` you feed into `rwc byok create`. Standard EKS installs the AWS Load Balancer Controller; Auto Mode relies on the native controller.
 
 > **Prerequisite**: [`aws/base_env`](../base_env/) must be applied first.
 
@@ -9,9 +9,10 @@ Installs the Kubernetes add-ons that BYOK requires, configures Karpenter NodePoo
 | Component | Purpose |
 | --- | --- |
 | **cert-manager** (v1.19.2+) | Internal certificate management — required for RisingWave control plane mTLS |
-| **AWS Load Balancer Controller** (v1.17.0+) | Binds Kubernetes services to the NLB target groups created in `base_env` |
-| **Karpenter controller** | Dynamic node provisioning |
-| **Karpenter NodePools** (system, rw, telemetry, update) | Tainted node pools with isolation per workload type |
+| **AWS Load Balancer Controller** (v1.17.0+) | Standard EKS only; binds Kubernetes services to the NLB target groups created in `base_env` |
+| **EKS Auto Mode native load balancing** | Auto Mode only; reconciles native TargetGroupBindings without a Helm controller; `base_env` supplies the required NLB-to-node security-group rules |
+| **Karpenter controller** | Standard EKS only; dynamic node provisioning |
+| **NodePools** (system, rw, telemetry, update) | OSS Karpenter resources in standard EKS or EKS-managed NodeClasses/NodePools in Auto Mode |
 
 ## Inputs
 

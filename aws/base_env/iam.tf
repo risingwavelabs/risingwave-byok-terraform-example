@@ -125,6 +125,8 @@ resource "aws_iam_role_policy" "loki_s3" {
 # Required for NLB/ALB provisioning in BYOK
 # ------------------------------------------------------------------------------
 module "aws_lb_controller_irsa_role" {
+  count = module.eks_auto_mode_load_balancing.self_managed_controller_enabled ? 1 : 0
+
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
   version = "6.6.1"
 

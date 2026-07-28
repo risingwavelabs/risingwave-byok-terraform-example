@@ -11,13 +11,95 @@
 # ------------------------------------------------------------------------------
 # CloudAgent NLB
 # ------------------------------------------------------------------------------
+module "eks_auto_mode_load_balancing" {
+  source = "../modules/eks_auto_mode_load_balancing"
+
+  enabled      = var.eks_auto_mode
+  cluster_name = local.eks_cluster_name
+  target_ports = {
+    cloudagent       = var.cloudagent_port
+    cloudagent_zpage = var.cloudagent_zpage_port
+    rwproxy          = var.rwproxy_port
+    rwproxy_metrics  = var.rwproxy_metrics_port
+    rwproxy_webhook  = var.rwproxy_webhook_port
+  }
+  client_ports = {
+    rwproxy = var.rwproxy_port
+  }
+  client_cidrs = concat([var.vpc_cidr], var.rwproxy_additional_client_cidrs)
+}
+
+resource "aws_security_group" "nlb" {
+  count = module.eks_auto_mode_load_balancing.nlb_security_group_required ? 1 : 0
+
+  name        = "${local.name_prefix}-nlb"
+  description = "Security group for EKS Auto Mode native TargetGroupBindings"
+  vpc_id      = module.vpc.vpc_id
+
+  tags = merge(local.tags, {
+    Name = "${local.name_prefix}-nlb"
+  })
+}
+
+resource "aws_vpc_security_group_egress_rule" "nlb" {
+  count = module.eks_auto_mode_load_balancing.nlb_security_group_required ? 1 : 0
+
+  security_group_id = aws_security_group.nlb[0].id
+  cidr_ipv4         = "0.0.0.0/0"
+  ip_protocol       = "-1"
+}
+
+resource "aws_security_group" "rwproxy_client" {
+  count = module.eks_auto_mode_load_balancing.nlb_security_group_required ? 1 : 0
+
+  name        = "${local.name_prefix}-rwproxy-client"
+  description = "Direct client access to the EKS Auto Mode RWProxy NLB"
+  vpc_id      = module.vpc.vpc_id
+
+  tags = merge(local.tags, {
+    Name = "${local.name_prefix}-rwproxy-client"
+  })
+}
+
+resource "aws_vpc_security_group_egress_rule" "rwproxy_client" {
+  count = module.eks_auto_mode_load_balancing.nlb_security_group_required ? 1 : 0
+
+  security_group_id = aws_security_group.rwproxy_client[0].id
+  cidr_ipv4         = "0.0.0.0/0"
+  ip_protocol       = "-1"
+}
+
+resource "aws_vpc_security_group_ingress_rule" "rwproxy_clients" {
+  for_each = module.eks_auto_mode_load_balancing.nlb_client_ingress_rules
+
+  security_group_id = aws_security_group.rwproxy_client[0].id
+  cidr_ipv4         = each.value.cidr
+  ip_protocol       = "tcp"
+  from_port         = each.value.port
+  to_port           = each.value.port
+  description       = "Allow direct RWProxy clients from ${each.value.cidr}"
+}
+
+resource "aws_vpc_security_group_ingress_rule" "eks_auto_mode_targets" {
+  for_each = module.eks_auto_mode_load_balancing.node_security_group_ingress_ports
+
+  security_group_id            = module.eks.cluster_primary_security_group_id
+  referenced_security_group_id = aws_security_group.nlb[0].id
+  ip_protocol                  = "tcp"
+  from_port                    = each.value
+  to_port                      = each.value
+  description                  = "Allow EKS Auto Mode NLB traffic to ${each.key} targets"
+}
+
 resource "aws_lb" "cloudagent" {
   name               = "${local.name_prefix}-ca"
   internal           = true
   load_balancer_type = "network"
   subnets            = module.vpc.private_subnets
+  security_groups    = module.eks_auto_mode_load_balancing.nlb_security_group_required ? [aws_security_group.nlb[0].id] : null
 
-  enable_cross_zone_load_balancing = true
+  enable_cross_zone_load_balancing                             = true
+  enforce_security_group_inbound_rules_on_private_link_traffic = module.eks_auto_mode_load_balancing.private_link_security_group_enforcement
 
   tags = merge(local.tags, {
     Name = "${local.name_prefix}-cloudagent-nlb"
@@ -41,7 +123,7 @@ resource "aws_lb_target_group" "cloudagent" {
     interval            = 10
   }
 
-  tags = merge(local.tags, {
+  tags = merge(local.tags, module.eks_auto_mode_load_balancing.target_group_tags, {
     Name = "${local.name_prefix}-cloudagent-tg"
   })
 }
@@ -74,7 +156,7 @@ resource "aws_lb_target_group" "cloudagent_zpage" {
     interval            = 10
   }
 
-  tags = merge(local.tags, {
+  tags = merge(local.tags, module.eks_auto_mode_load_balancing.target_group_tags, {
     Name = "${local.name_prefix}-cloudagent-zpage-tg"
   })
 }
@@ -109,8 +191,13 @@ resource "aws_lb" "rwproxy_internal" {
   internal           = true
   load_balancer_type = "network"
   subnets            = module.vpc.private_subnets
+  security_groups = module.eks_auto_mode_load_balancing.nlb_security_group_required ? [
+    aws_security_group.nlb[0].id,
+    aws_security_group.rwproxy_client[0].id,
+  ] : null
 
-  enable_cross_zone_load_balancing = true
+  enable_cross_zone_load_balancing                             = true
+  enforce_security_group_inbound_rules_on_private_link_traffic = module.eks_auto_mode_load_balancing.private_link_security_group_enforcement
 
   tags = merge(local.tags, {
     Name = "${local.name_prefix}-rwproxy-internal-nlb"
@@ -134,7 +221,7 @@ resource "aws_lb_target_group" "rwproxy_internal" {
     interval            = 10
   }
 
-  tags = merge(local.tags, {
+  tags = merge(local.tags, module.eks_auto_mode_load_balancing.target_group_tags, {
     Name = "${local.name_prefix}-rwproxy-internal-tg"
   })
 }
@@ -158,7 +245,7 @@ resource "aws_lb_target_group" "rwproxy_webhook" {
   target_type = "ip"
   vpc_id      = module.vpc.vpc_id
 
-  tags = merge(local.tags, {
+  tags = merge(local.tags, module.eks_auto_mode_load_balancing.target_group_tags, {
     Name = "${local.name_prefix}-rwproxy-webhook-tg"
   })
 }
@@ -191,7 +278,7 @@ resource "aws_lb_target_group" "rwproxy_metrics" {
     interval            = 10
   }
 
-  tags = merge(local.tags, {
+  tags = merge(local.tags, module.eks_auto_mode_load_balancing.target_group_tags, {
     Name = "${local.name_prefix}-rwproxy-metrics-tg"
   })
 }

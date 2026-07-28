@@ -2,7 +2,7 @@
 
 Reference Terraform code to bootstrap a [RisingWave BYOK (Bring Your Own Kubernetes)](https://docs.risingwave.com/cloud/project-byok) environment.
 
-This repo provisions all the AWS infrastructure that RisingWave Cloud BYOK requires you to bring: VPC, EKS cluster with Karpenter node pools, S3 buckets, KMS keys, NLBs with PrivateLink endpoint services, IAM roles, RDS metastore, and the Kubernetes add-ons (cert-manager, AWS Load Balancer Controller).
+This repo provisions all the AWS infrastructure that RisingWave Cloud BYOK requires you to bring: VPC, EKS cluster with Karpenter node pools, S3 buckets, KMS keys, NLBs with PrivateLink endpoint services, IAM roles, RDS metastore, and Kubernetes add-ons. Standard EKS installs the AWS Load Balancer Controller; EKS Auto Mode uses its native load-balancing capability.
 
 > **Cloud provider support**: AWS only at the moment. GCP support is planned and will live under `gcp/`.
 
@@ -14,7 +14,7 @@ This repo provisions all the AWS infrastructure that RisingWave Cloud BYOK requi
 risingwave-byok-terraform-example/
 ├── aws/
 │   ├── base_env/            # VPC, EKS, S3, KMS, NLBs, IAM roles
-│   ├── k8s_addons/          # cert-manager, AWS LB Controller, Karpenter NodePools
+│   ├── k8s_addons/          # cert-manager, load-balancing integration, NodePools
 │   └── tenant_resources/    # Per-cluster RDS metastore + IAM role (run once per RW cluster)
 └── gcp/                     # Coming with GCP GKE support
 ```

@@ -134,3 +134,10 @@ resource "kubectl_manifest" "nodepool" {
   wait       = true
   depends_on = [kubectl_manifest.nodeclass]
 }
+
+output "selected_security_group_ids" {
+  description = "Explicit security group IDs selected by the rendered Auto Mode NodeClass."
+  value = compact([
+    for term in local.nodeclass.spec.securityGroupSelectorTerms : try(term.id, null)
+  ])
+}

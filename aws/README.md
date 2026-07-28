@@ -7,7 +7,7 @@ Terraform code to bootstrap a RisingWave BYOK environment on **AWS EKS**.
 | Module | Description | When to apply |
 | --- | --- | --- |
 | [`base_env/`](base_env/) | VPC, EKS, S3 buckets, KMS, IAM roles, NLBs, VPC endpoint services | Once per BYOK environment |
-| [`k8s_addons/`](k8s_addons/) | cert-manager, AWS LB Controller, Karpenter NodePools | Once per BYOK environment, after `base_env` |
+| [`k8s_addons/`](k8s_addons/) | cert-manager, load-balancing integration, Karpenter/Auto Mode NodePools | Once per BYOK environment, after `base_env` |
 | [`tenant_resources/`](tenant_resources/) | RDS metastore + per-cluster IAM role | Once per RisingWave cluster |
 
 ## Quickstart
