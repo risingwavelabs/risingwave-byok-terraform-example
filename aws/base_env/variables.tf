@@ -20,6 +20,12 @@ variable "region" {
   default     = "us-east-1"
 }
 
+variable "control_plane_region" {
+  type        = string
+  description = "AWS region where the RisingWave control plane is hosted. Leave empty for a same-region environment."
+  default     = ""
+}
+
 variable "control_plane_aws_account_id" {
   type        = string
   description = "The AWS account ID where the RisingWave control plane is hosted (for VPC endpoint service allowed principals)."

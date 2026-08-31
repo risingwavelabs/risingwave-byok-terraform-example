@@ -28,10 +28,15 @@ Common optional overrides — see [variables.tf](variables.tf) for the full list
 | Variable | Default |
 | --- | --- |
 | `region` | `us-east-1` |
+| `control_plane_region` | `""` (same as `region`) |
 | `vpc_cidr` | `10.0.0.0/16` |
 | `rwproxy_additional_client_cidrs` | `[]` (the VPC CIDR is always allowed in Auto Mode) |
 | `kubernetes_version` | `1.34` |
 | `control_plane_aws_account_id` | `600598779918` (RisingWave Cloud production) |
+
+For a cross-region environment, set `control_plane_region` to the AWS region
+selected by your `rwc` context. The AWS principal applying this module must also
+allow the `vpce:AllowMultiRegion` action.
 
 
 ## Apply

@@ -177,6 +177,7 @@ resource "aws_vpc_endpoint_service" "cloudagent" {
   acceptance_required        = false
   network_load_balancer_arns = [aws_lb.cloudagent.arn]
   allowed_principals         = ["arn:aws:iam::${var.control_plane_aws_account_id}:root"]
+  supported_regions          = var.control_plane_region == "" || var.control_plane_region == var.region ? null : toset([var.region, var.control_plane_region])
 
   tags = merge(local.tags, {
     Name = "${local.name_prefix}-cloudagent-vpce-svc"
@@ -299,6 +300,7 @@ resource "aws_vpc_endpoint_service" "rwproxy" {
   acceptance_required        = false
   network_load_balancer_arns = [aws_lb.rwproxy_internal.arn]
   allowed_principals         = ["arn:aws:iam::${var.control_plane_aws_account_id}:root"]
+  supported_regions          = var.control_plane_region == "" || var.control_plane_region == var.region ? null : toset([var.region, var.control_plane_region])
 
   tags = merge(local.tags, {
     Name = "${local.name_prefix}-rwproxy-vpce-svc"
