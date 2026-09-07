@@ -229,7 +229,7 @@ resource "aws_eks_access_policy_association" "auto_mode_node" {
 # EBS CSI Driver IRSA (standard mode only — Auto Mode has a built-in EBS driver)
 module "ebs_csi_irsa_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
-  version = "6.6.1"
+  version = "6.8.1"
 
   count = var.eks_auto_mode ? 0 : 1
 
@@ -251,7 +251,7 @@ module "ebs_csi_irsa_role" {
 # VPC CNI IRSA (standard mode only — Auto Mode has a built-in CNI)
 module "vpc_cni_irsa_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
-  version = "6.6.1"
+  version = "6.8.1"
 
   count = var.eks_auto_mode ? 0 : 1
 
