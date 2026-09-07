@@ -59,7 +59,7 @@ The workflow has two phases. The **environment** is provisioned once; **per-clus
 ## Prerequisites
 
 - [Terraform](https://www.terraform.io/) >= 1.5
-- [AWS CLI](https://docs.aws.amazon.com/cli/) configured with credentials that can manage EKS, EC2, IAM, S3, KMS, RDS, ELBv2
+- [AWS CLI](https://docs.aws.amazon.com/cli/) configured with credentials that can manage EKS, EC2, IAM, S3, KMS, RDS, ELBv2; cross-region PrivateLink also requires `vpce:AllowMultiRegion`
 - [kubectl](https://kubernetes.io/docs/tasks/tools/)
 - [`rwc` CLI](https://docs.risingwave.com/cloud/install-cli)
 

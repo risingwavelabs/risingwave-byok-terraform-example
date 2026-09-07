@@ -10,6 +10,11 @@ user_prefix = "alice"
 # Optional: AWS region (default: us-east-1)
 # region = "us-east-1"
 
+# Optional: RisingWave control-plane region. Set this when it differs from the
+# BYOK environment region. The applying AWS principal must be allowed to call
+# vpce:AllowMultiRegion.
+# control_plane_region = "us-west-2"
+
 # Optional: VPC CIDR (default: 10.0.0.0/16)
 # vpc_cidr = "10.0.0.0/16"
 
