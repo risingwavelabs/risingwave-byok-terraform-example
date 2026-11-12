@@ -17,7 +17,7 @@ locals {
 # ------------------------------------------------------------------------------
 module "cloudagent_irsa_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
-  version = "6.6.1"
+  version = "6.8.1"
 
   name            = "${local.name_prefix}-cloudagent-irsa"
   use_name_prefix = false
@@ -81,7 +81,7 @@ resource "aws_iam_role_policy" "cloudagent_tfstate" {
 # ------------------------------------------------------------------------------
 module "loki_irsa_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
-  version = "6.6.1"
+  version = "6.8.1"
 
   name            = "${local.name_prefix}-loki-irsa"
   use_name_prefix = false
@@ -128,7 +128,7 @@ module "aws_lb_controller_irsa_role" {
   count = module.eks_auto_mode_load_balancing.self_managed_controller_enabled ? 1 : 0
 
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
-  version = "6.6.1"
+  version = "6.8.1"
 
   name                                   = "${local.name_prefix}-aws-lb-controller-irsa"
   policy_name                            = "${local.name_prefix}-aws-lb-controller-irsa"
