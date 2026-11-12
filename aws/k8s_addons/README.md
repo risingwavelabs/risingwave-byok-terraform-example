@@ -8,6 +8,7 @@ Installs the Kubernetes add-ons that BYOK requires, configures Karpenter or EKS 
 
 | Component | Purpose |
 | --- | --- |
+| **Mountpoint S3 CSI driver** | Static heap mounts using the dedicated driver IRSA role; installed after system NodePools, including Auto Mode where supported |
 | **cert-manager** (v1.19.2+) | Internal certificate management — required for RisingWave control plane mTLS |
 | **AWS Load Balancer Controller** (v1.17.0+) | Standard EKS only; binds Kubernetes services to the NLB target groups created in `base_env` |
 | **EKS Auto Mode native load balancing** | Auto Mode only; reconciles native TargetGroupBindings without a Helm controller; `base_env` supplies the required NLB-to-node security-group rules |
@@ -22,6 +23,7 @@ Installs the Kubernetes add-ons that BYOK requires, configures Karpenter or EKS 
 | --- | --- | --- |
 | `region` | AWS region (from `base_env`) | required |
 | `eks_cluster_name` | EKS cluster name (from `base_env`) | required |
+| `s3_csi_driver_version` | Mountpoint S3 CSI EKS add-on version | `v2.6.0-eksbuild.1` |
 | `cert_manager_version` | cert-manager Helm chart version | `v1.19.2` |
 | `aws_lb_controller_version` | AWS LB Controller Helm chart version | `1.17.0` |
 | `karpenter_version` | Karpenter Helm chart version | `1.8.3` |
@@ -62,6 +64,14 @@ rwc byok apply --name <env-name>
 ```
 
 It merges outputs from both `base_env` (S3 ARNs, IAM roles, NLB target groups, VPC endpoint service names) and `k8s_addons` (NodePool taints/labels translated into `customized_settings.scheduling`).
+
+## Heap storage
+
+Heap storage is optional for new BYOK environments. This example provisions its prerequisites and opts in by including `aws.s3_buckets.heap_store_arn` in the generated `byok_config_yaml`. Use a CLI and control-plane release supporting this optional field (CLOUD-5521); creating a configured environment requires no additional admin call. You can omit the field from the creation YAML to leave heap storage disabled. Provisioning this module does not enable heap storage on an already-registered environment: coordinate with the RisingWave team to pause cluster changes and automated spec updates, configure the environment, and backfill backing PV/PVC resources for all existing clusters (including stopped clusters). Keep the window open until all backfill operations succeed, retrying partial failures. Backfill does not patch RisingWave resources or roll pods. Afterward, mount individual clusters when needed; ordinary spec rebuilds can also introduce heap mounts.
+
+Apply the updated `base_env` first so its heap bucket and CSI role outputs exist. The driver uses IRSA and tolerates workload taints; its controller follows the system NodePool labels and tolerations. Verify the pinned add-on version supports your EKS Kubernetes version before applying. If S3 CSI is already installed, reconcile/import that installation before applying this module; it deliberately fails on ownership conflicts.
+
+After apply, check `aws eks describe-addon --cluster-name <cluster> --addon-name aws-mountpoint-s3-csi-driver` and verify the driver pods are healthy. A healthy add-on is a prerequisite, not proof that a tenant has uploaded a heap dump.
 
 ## Destroy
 

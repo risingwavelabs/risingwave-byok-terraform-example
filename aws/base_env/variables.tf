@@ -131,3 +131,9 @@ variable "rwproxy_metrics_port" {
   description = "Port for RWProxy metrics endpoint."
   default     = 9099
 }
+
+variable "heap_retention_days" {
+  type        = number
+  description = "Days to retain heap dumps in the dedicated diagnostics bucket (positive whole number)."
+  default     = 7
+}

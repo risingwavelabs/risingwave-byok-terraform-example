@@ -204,3 +204,18 @@ output "tags" {
   description = "User-provided custom tags"
   value       = var.tags
 }
+
+output "heap_bucket_name" {
+  description = "Dedicated heap bucket name to provide to RisingWave for enablement."
+  value       = module.heap_storage.bucket_name
+}
+
+output "heap_csi_role_arn" {
+  description = "Driver-level IRSA role for the Mountpoint S3 CSI add-on."
+  value       = module.heap_storage.driver_role_arn
+}
+
+output "heap_bucket_arn" {
+  description = "Heap bucket ARN for aws.s3_buckets.heap_store_arn."
+  value       = module.heap_storage.bucket_arn
+}

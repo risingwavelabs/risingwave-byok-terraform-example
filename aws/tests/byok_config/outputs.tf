@@ -1,0 +1,1 @@
+../../k8s_addons/outputs.tf
