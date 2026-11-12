@@ -113,3 +113,9 @@ variable "telemetry_nodepool" {
   description = "Configuration for the self-hosted telemetry Karpenter NodePool (VictoriaMetrics, Loki, Alloy). Mirrors BYOC hosted-telemetry."
   default     = {}
 }
+
+variable "s3_csi_driver_version" {
+  type        = string
+  description = "Mountpoint S3 CSI EKS add-on version, compatible with the cluster Kubernetes version."
+  default     = "v2.6.0-eksbuild.1"
+}

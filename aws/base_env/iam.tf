@@ -147,3 +147,37 @@ module "aws_lb_controller_irsa_role" {
 
 # Telemetry Access IAM Role is not needed with hosted telemetry —
 # the support team accesses metrics/logs via the admin service proxy.
+
+# ------------------------------------------------------------------------------
+# Mountpoint S3 CSI Driver IAM Role
+# ------------------------------------------------------------------------------
+
+# Tenant and CloudAgent roles do not need heap-bucket permissions.
+module "s3_csi_irsa_role" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
+  version = "6.8.1"
+
+  name            = "${local.name_prefix}-s3-csi"
+  use_name_prefix = false
+
+  oidc_providers = {
+    main = {
+      provider_arn               = module.eks.oidc_provider_arn
+      namespace_service_accounts = ["kube-system:s3-csi-driver-sa"]
+    }
+  }
+
+  tags = local.tags
+}
+
+resource "aws_iam_role_policy" "heap_storage" {
+  name = "heap-storage"
+  role = module.s3_csi_irsa_role.name
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      { Effect = "Allow", Action = ["s3:ListBucket"], Resource = aws_s3_bucket.heap.arn },
+      { Effect = "Allow", Action = ["s3:GetObject", "s3:PutObject", "s3:AbortMultipartUpload"], Resource = "${aws_s3_bucket.heap.arn}/heap/*" },
+    ]
+  })
+}

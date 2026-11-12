@@ -267,6 +267,30 @@ module "auto_mode_nodepool_telemetry" {
 }
 
 # ------------------------------------------------------------------------------
+# Mountpoint S3 CSI Driver
+# ------------------------------------------------------------------------------
+
+# Install after node provisioning, including Auto Mode's customer NodePools.
+resource "aws_eks_addon" "s3_csi_driver" {
+  cluster_name             = var.eks_cluster_name
+  addon_name               = "aws-mountpoint-s3-csi-driver"
+  addon_version            = var.s3_csi_driver_version
+  service_account_role_arn = local.base_env.heap_csi_role_arn
+  # Fail on conflicts with an existing installation instead of taking it over.
+  resolve_conflicts_on_create = "NONE"
+  resolve_conflicts_on_update = "NONE"
+  configuration_values = jsonencode({
+    node = { tolerateAllTaints = true }
+    controller = {
+      nodeSelector = var.system_nodepool.labels
+      tolerations  = local.system_node_tolerations
+    }
+  })
+
+  depends_on = [module.nodepool_system, module.auto_mode_nodepool_system]
+}
+
+# ------------------------------------------------------------------------------
 # Helm add-ons — deploy after Karpenter NodePools.
 #
 # When the system Karpenter NodePool is tainted (var.system_nodepool.taints),

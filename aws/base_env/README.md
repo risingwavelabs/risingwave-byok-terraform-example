@@ -9,9 +9,9 @@ Provisions the AWS infrastructure that RisingWave Cloud BYOK requires you to bri
 | VPC + public/private subnets across 3 AZs, NAT gateway, S3 endpoint | Network foundation for the BYOK environment |
 | EKS cluster | Standard EKS uses a Karpenter controller managed node group; Auto Mode uses AWS-managed compute |
 | EBS CSI driver, VPC CNI add-ons | Standard EKS only; Auto Mode provides these capabilities natively |
-| 2 S3 buckets | Data store (RisingWave state) and log store (Loki) |
+| 3 S3 buckets | Data store, log store, and a heap-dump bucket |
 | KMS key | EBS volume encryption |
-| IAM roles (with IRSA) | CloudAgent and Loki; AWS Load Balancer Controller in standard EKS only |
+| IAM roles (with IRSA) | CloudAgent, Loki, and the Mountpoint S3 CSI driver; AWS Load Balancer Controller in standard EKS only |
 | 2 NLBs + 5 target groups | CloudAgent (40001 + zpage 40090) and RWProxy (4566 + webhook 4580 + metrics 9099); Auto Mode also creates an NLB security group, allows direct RWProxy clients from the VPC CIDR, and permits target traffic to the cluster security group on these ports |
 | 2 VPC Endpoint Services | PrivateLink connectivity from the RisingWave control plane |
 
@@ -27,6 +27,7 @@ Common optional overrides — see [variables.tf](variables.tf) for the full list
 
 | Variable | Default |
 | --- | --- |
+| `heap_retention_days` | `7` (positive whole number) |
 | `region` | `us-east-1` |
 | `control_plane_region` | `""` (same as `region`) |
 | `vpc_cidr` | `10.0.0.0/16` |
