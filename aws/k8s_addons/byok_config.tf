@@ -157,6 +157,7 @@ locals {
         s3_buckets = {
           data_store_arn = local.base_env.s3_bucket_arn
           log_store_arn  = local.base_env.loki_s3_bucket_arn
+          heap_store_arn = local.base_env.heap_bucket_arn
         }
         ebs_encryption_key_arn = local.base_env.ebs_encryption_key_arn
         iam_roles = {

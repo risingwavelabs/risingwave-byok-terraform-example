@@ -63,6 +63,10 @@ The workflow has two phases. The **environment** is provisioned once; **per-clus
 - [kubectl](https://kubernetes.io/docs/tasks/tools/)
 - [`rwc` CLI](https://docs.risingwave.com/cloud/install-cli)
 
+## Offline heap tests
+
+With Terraform 1.7 or later, run `make test-heap` and `make lint-heap`. Tests mock AWS and do not access a backend or create cloud resources. Use `TF=/path/to/terraform` to select a binary. Live EKS mounting and real heap uploads still require integration validation.
+
 ## Versioning
 
 Tags on this repo align with RisingWave Cloud BYOK module releases. When pinning, use a tag that matches the BYOK control plane version you intend to deploy (e.g. `v2026.16.x`).

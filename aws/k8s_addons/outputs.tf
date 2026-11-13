@@ -8,3 +8,8 @@ output "byok_config_yaml" {
   description = "Complete BYOKConfig YAML for use with the BYOK CLI"
   value       = "# Auto-generated — do not edit manually.\n${yamlencode(local.byok_config)}"
 }
+
+output "heap_bucket_name" {
+  description = "Heap bucket name for diagnostics and legacy-environment admin enablement."
+  value       = local.base_env.heap_bucket_name
+}
