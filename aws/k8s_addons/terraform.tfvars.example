@@ -7,9 +7,9 @@
 # To use: copy to terraform.tfvars and uncomment the desired settings.
 
 # Optional: override chart versions (defaults align with production)
-# cert_manager_version      = "v1.19.2"
-# aws_lb_controller_version = "1.17.0"
-# karpenter_version         = "1.8.3"
+# cert_manager_version      = "1.21.2"
+# aws_lb_controller_version = "3.3.0"
+# karpenter_version         = "1.15.0"
 
 # Optional: Karpenter NodePool configuration
 #

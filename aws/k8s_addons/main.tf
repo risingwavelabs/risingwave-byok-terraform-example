@@ -103,7 +103,7 @@ module "nodepool_system" {
   node_iam_role_name = module.karpenter.karpenter_node_iam_role_name
   name               = "system"
   ami_family         = "Bottlerocket"
-  ami_version        = "bottlerocket@v1.54.0"
+  ami_version        = "bottlerocket@v1.66.0"
   instance_types     = var.system_nodepool.instance_types
   labels             = var.system_nodepool.labels
   taints             = var.system_nodepool.taints
@@ -125,7 +125,7 @@ module "nodepool_rw" {
   node_iam_role_name = module.karpenter.karpenter_node_iam_role_name
   name               = "rw"
   ami_family         = "Bottlerocket"
-  ami_version        = "bottlerocket@v1.54.0"
+  ami_version        = "bottlerocket@v1.66.0"
   instance_types     = var.rw_nodepool.instance_types
   labels             = var.rw_nodepool.labels
   taints             = var.rw_nodepool.taints
@@ -149,7 +149,7 @@ module "nodepool_update" {
   node_iam_role_name = module.karpenter.karpenter_node_iam_role_name
   name               = "update"
   ami_family         = "Bottlerocket"
-  ami_version        = "bottlerocket@v1.54.0"
+  ami_version        = "bottlerocket@v1.66.0"
   instance_types     = var.update_nodepool.instance_types
   labels             = var.update_nodepool.labels
   taints             = var.update_nodepool.taints
@@ -171,7 +171,7 @@ module "nodepool_telemetry" {
   node_iam_role_name = module.karpenter.karpenter_node_iam_role_name
   name               = "telemetry"
   ami_family         = "Bottlerocket"
-  ami_version        = "bottlerocket@v1.54.0"
+  ami_version        = "bottlerocket@v1.66.0"
   instance_types     = var.telemetry_nodepool.instance_types
   labels             = var.telemetry_nodepool.labels
   taints             = var.telemetry_nodepool.taints

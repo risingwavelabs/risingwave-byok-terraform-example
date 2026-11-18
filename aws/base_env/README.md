@@ -31,8 +31,12 @@ Common optional overrides — see [variables.tf](variables.tf) for the full list
 | `control_plane_region` | `""` (same as `region`) |
 | `vpc_cidr` | `10.0.0.0/16` |
 | `rwproxy_additional_client_cidrs` | `[]` (the VPC CIDR is always allowed in Auto Mode) |
-| `kubernetes_version` | `1.34` |
+| `kubernetes_version` | `1.35` |
 | `control_plane_aws_account_id` | `600598779918` (RisingWave Cloud production) |
+
+The standard-mode EKS add-ons are pinned in [eks.tf](eks.tf) to the shared
+RisingWave Cloud versions for Kubernetes 1.35. If overriding `kubernetes_version`,
+update those pins to versions compatible with the selected Kubernetes version.
 
 For a cross-region environment, set `control_plane_region` to the AWS region
 selected by your `rwc` context. The AWS principal applying this module must also
