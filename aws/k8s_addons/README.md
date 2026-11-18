@@ -8,8 +8,8 @@ Installs the Kubernetes add-ons that BYOK requires, configures Karpenter or EKS 
 
 | Component | Purpose |
 | --- | --- |
-| **cert-manager** (v1.19.2+) | Internal certificate management — required for RisingWave control plane mTLS |
-| **AWS Load Balancer Controller** (v1.17.0+) | Standard EKS only; binds Kubernetes services to the NLB target groups created in `base_env` |
+| **cert-manager** (chart `1.21.2`) | Internal certificate management — required for RisingWave control plane mTLS |
+| **AWS Load Balancer Controller** (chart `3.3.0`) | Standard EKS only; binds Kubernetes services to the NLB target groups created in `base_env` |
 | **EKS Auto Mode native load balancing** | Auto Mode only; reconciles native TargetGroupBindings without a Helm controller; `base_env` supplies the required NLB-to-node security-group rules |
 | **Karpenter controller** | Standard EKS only; dynamic node provisioning |
 | **NodePools** (system, rw, telemetry, update) | OSS Karpenter resources in standard EKS or EKS-managed NodeClasses/NodePools in Auto Mode |
@@ -22,9 +22,9 @@ Installs the Kubernetes add-ons that BYOK requires, configures Karpenter or EKS 
 | --- | --- | --- |
 | `region` | AWS region (from `base_env`) | required |
 | `eks_cluster_name` | EKS cluster name (from `base_env`) | required |
-| `cert_manager_version` | cert-manager Helm chart version | `v1.19.2` |
-| `aws_lb_controller_version` | AWS LB Controller Helm chart version | `1.17.0` |
-| `karpenter_version` | Karpenter Helm chart version | `1.8.3` |
+| `cert_manager_version` | cert-manager Helm chart version | `1.21.2` |
+| `aws_lb_controller_version` | AWS LB Controller Helm chart version | `3.3.0` |
+| `karpenter_version` | Karpenter Helm chart version | `1.15.0` |
 | `system_nodepool` | NodePool config for system workloads | see variables.tf |
 | `rw_nodepool` | NodePool config for RisingWave cluster pods | see variables.tf |
 | `telemetry_nodepool` | NodePool config for VictoriaMetrics + Loki | see variables.tf |

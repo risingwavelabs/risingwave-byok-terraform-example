@@ -17,13 +17,14 @@
 locals {
   eks_cluster_name = "${local.name_prefix}-eks"
 
+  # Versions match risingwave-cloud/deploy/infra/shared_modules/resource_versions.
   # Standard-mode cluster addons. Auto Mode ships these components internally,
   # so it takes an empty addon set. The two drivers are mutually exclusive per
   # node type: standard uses in-tree kubernetes.io/aws-ebs (ebs.csi.aws.com via
   # CSI migration); Auto Mode uses the built-in ebs.csi.eks.amazonaws.com.
   eks_addons = var.eks_auto_mode ? {} : {
     coredns = {
-      most_recent = true
+      addon_version = "v1.14.7-eksbuild.11"
       configuration_values = jsonencode({
         tolerations = [
           {
@@ -40,10 +41,10 @@ locals {
       })
     }
     kube-proxy = {
-      most_recent = true
+      addon_version = "v1.35.3-eksbuild.49"
     }
     vpc-cni = {
-      most_recent    = true
+      addon_version  = "v1.23.2-eksbuild.3"
       before_compute = true
       configuration_values = jsonencode({
         env = {
@@ -53,7 +54,7 @@ locals {
       })
     }
     aws-ebs-csi-driver = {
-      most_recent              = true
+      addon_version            = "v1.67.0-eksbuild.1"
       service_account_role_arn = one(module.ebs_csi_irsa_role[*].arn)
       configuration_values = jsonencode({
         # The CSI Node DaemonSet must land on every node that can host a

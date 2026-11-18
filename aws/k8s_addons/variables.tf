@@ -11,23 +11,23 @@ variable "eks_cluster_name" {
   description = "Name of the EKS cluster."
 }
 
-# Chart versions (aligned with aws/modules/resource_versions)
+# Chart versions (aligned with risingwave-cloud/deploy/infra/shared_modules/resource_versions)
 variable "cert_manager_version" {
   type        = string
   description = "cert-manager Helm chart version (v1.18.2+ required per BYOK spec)."
-  default     = "v1.19.2"
+  default     = "1.21.2"
 }
 
 variable "aws_lb_controller_version" {
   type        = string
   description = "AWS Load Balancer Controller Helm chart version."
-  default     = "1.17.0"
+  default     = "3.3.0"
 }
 
 variable "karpenter_version" {
   type        = string
   description = "Karpenter Helm chart version."
-  default     = "1.8.3"
+  default     = "1.15.0"
 }
 
 # Karpenter NodePool configurations
