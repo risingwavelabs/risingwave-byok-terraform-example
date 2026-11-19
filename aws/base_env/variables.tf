@@ -131,3 +131,13 @@ variable "rwproxy_metrics_port" {
   description = "Port for RWProxy metrics endpoint."
   default     = 9099
 }
+
+variable "heap_retention_days" {
+  type        = number
+  description = "Days to retain heap dumps in the dedicated diagnostics bucket (positive whole number)."
+  default     = 7
+  validation {
+    condition     = var.heap_retention_days >= 1 && floor(var.heap_retention_days) == var.heap_retention_days
+    error_message = "heap_retention_days must be a positive whole number."
+  }
+}
